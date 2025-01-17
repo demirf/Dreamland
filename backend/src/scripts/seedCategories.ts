@@ -29,7 +29,7 @@ const categories = [
   {
     name: 'Anadolu Masalları',
     description: 'Anadolu kültüründen gelen geleneksel masallar',
-    icon: 'moon-full'
+    icon: 'tea'
   },
   {
     name: 'Eğitici Masallar',
