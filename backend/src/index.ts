@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database';
 import storyRoutes from './routes/storyRoutes';
 import feedbackRoutes from './routes/feedbackRoutes';
+import categoryRoutes from './routes/categoryRoutes';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 // Routes
 app.use('/api/stories', storyRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // MongoDB bağlantısı
 connectDB();

@@ -6,6 +6,7 @@ export interface IStory extends Document {
   author: string;
   readingTime: string;
   preview: string;
+  category: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,11 @@ const StorySchema = new Schema({
     type: String,
     required: true,
     trim: true
+  },
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true
   }
 }, {
   timestamps: true

@@ -11,6 +11,16 @@ export interface Story {
   author: string;
   readingTime: string;
   preview: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  description: string;
+  icon: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +33,23 @@ export const storyService = {
 
   getStoryById: async (id: string): Promise<Story> => {
     const response = await api.get(`/stories/${id}`);
+    return response.data;
+  },
+};
+
+export const categoryService = {
+  getAllCategories: async (): Promise<Category[]> => {
+    const response = await api.get('/categories');
+    return response.data;
+  },
+
+  getCategoryById: async (id: string): Promise<Category> => {
+    const response = await api.get(`/categories/${id}`);
+    return response.data;
+  },
+
+  getStoriesByCategory: async (categoryId: string): Promise<Story[]> => {
+    const response = await api.get(`/categories/${categoryId}/stories`);
     return response.data;
   },
 };

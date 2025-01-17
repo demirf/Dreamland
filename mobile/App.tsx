@@ -5,6 +5,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { theme } from './src/theme/theme';
 import MainTabs from './src/navigation/MainTabs';
 import StoryDetailsScreen from './src/screens/StoryDetailsScreen';
+import CategoryDetailsScreen from './src/screens/CategoryDetailsScreen';
 import { RootStackParamList } from './src/navigation/types';
 import { FavoritesProvider } from './src/context/FavoritesContext';
 
@@ -36,6 +37,11 @@ export default function App() {
               name="StoryDetails"
               component={StoryDetailsScreen}
               options={{ title: 'Masal Detayı' }}
+            />
+            <Stack.Screen
+              name="CategoryDetails"
+              component={CategoryDetailsScreen}
+              options={{ title: 'Kategori Detayı' }}
             />
           </Stack.Navigator>
         </NavigationContainer>

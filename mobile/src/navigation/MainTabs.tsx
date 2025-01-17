@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import HomeScreen from '../screens/HomeScreen';
+import CategoriesScreen from '../screens/CategoriesScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { MainTabParamList } from './types';
@@ -33,6 +34,16 @@ const MainTabs = () => {
           title: 'Masallar',
           tabBarIcon: ({ color, size }) => (
             <Icon name="book-open-variant" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{
+          title: 'Kategoriler',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="shape" size={size} color={color} />
           ),
         }}
       />
