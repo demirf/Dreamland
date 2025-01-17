@@ -1,18 +1,32 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { List, Portal, Dialog, TextInput, Button, useTheme } from 'react-native-paper';
+import { List, Portal, Dialog, TextInput, Button, useTheme, Snackbar } from 'react-native-paper';
+import { feedbackService } from '../services/api';
 
 const SettingsScreen = () => {
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const theme = useTheme();
 
   const handleSubmitFeedback = async () => {
-    // Burada feedback'i backend'e gönderebiliriz
-    console.log('Geri bildirim:', feedback);
-    setFeedback('');
-    setFeedbackVisible(false);
-    // TODO: Başarılı gönderim mesajı göster
+    if (!feedback.trim()) return;
+
+    setLoading(true);
+    try {
+      const response = await feedbackService.sendFeedback(feedback);
+      setSnackbarMessage(response.message);
+      setSnackbarVisible(true);
+      setFeedback('');
+      setFeedbackVisible(false);
+    } catch (error) {
+      setSnackbarMessage('Geri bildirim gönderilirken bir hata oluştu');
+      setSnackbarVisible(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,26 +63,38 @@ const SettingsScreen = () => {
                   onSurfaceVariant: '#666666',
                 }
               }}
+              disabled={loading}
             />
           </Dialog.Content>
           <Dialog.Actions>
             <Button 
               onPress={() => setFeedbackVisible(false)}
               textColor="#666666"
+              disabled={loading}
             >
               İptal
             </Button>
             <Button 
               mode="contained" 
               onPress={handleSubmitFeedback}
-              disabled={!feedback.trim()}
+              disabled={!feedback.trim() || loading}
               style={styles.submitButton}
+              loading={loading}
             >
               Gönder
             </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        style={styles.snackbar}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 };
@@ -90,6 +116,9 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginLeft: 8,
+  },
+  snackbar: {
+    marginBottom: 20,
   },
 });
 

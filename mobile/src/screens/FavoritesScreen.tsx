@@ -4,29 +4,14 @@ import { Text, Card, Title, Paragraph, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFavorites } from '../context/FavoritesContext';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'StoryDetails'>;
 
 const FavoritesScreen = () => {
-  const [favorites, setFavorites] = React.useState<any[]>([]);
+  const { favorites } = useFavorites();
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
-
-  React.useEffect(() => {
-    loadFavorites();
-  }, []);
-
-  const loadFavorites = async () => {
-    try {
-      const favoritesJson = await AsyncStorage.getItem('favorites');
-      if (favoritesJson) {
-        setFavorites(JSON.parse(favoritesJson));
-      }
-    } catch (error) {
-      console.error('Favoriler yüklenirken hata oluştu:', error);
-    }
-  };
 
   if (favorites.length === 0) {
     return (

@@ -1,46 +1,67 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Text, Card, Title, Paragraph, IconButton, useTheme } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useFavorites } from '../context/FavoritesContext';
+import { storyService, Story } from '../services/api';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StoryDetails'>;
 
 const StoryDetailsScreen: React.FC<Props> = ({ route }) => {
   const { storyId } = route.params;
+  const [story, setStory] = useState<Story | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
-  // Bu kısım daha sonra API'den gelecek
-  const storyDetails = {
-    id: storyId,
-    title: 'Uyuyan Güzel',
-    content: `Bir varmış bir yokmuş, çok uzak bir krallıkta güzel mi güzel bir prenses yaşarmış. 
-    
-Bu prensesin doğumunda bütün krallık çok mutlu olmuş ve büyük bir kutlama düzenlenmiş. Kutlamaya ülkenin bütün önemli kişileri ve periler davetliymiş.
+  useEffect(() => {
+    loadStory();
+  }, [storyId]);
 
-Ancak yaşlı ve kötü kalpli bir peri bu davete çağrılmadığı için çok sinirlenmiş. Kutlamanın ortasında aniden belirivermiş ve "Prenses 16 yaşına geldiğinde bir iğneye batacak ve sonsuza dek uykuya dalacak!" diye bir büyü yapmış.
-
-Neyse ki iyi kalpli perilerden biri bu laneti tamamen kaldıramasa da değiştirebilmiş: "Prenses gerçek aşkın öpücüğüyle uyanabilecek."
-
-Ve böylece masal başlamış...`,
-    author: 'Grimm Kardeşler',
-    readingTime: '5 dakika',
-    preview: 'Bir varmış bir yokmuş...'
+  const loadStory = async () => {
+    try {
+      const data = await storyService.getStoryById(storyId);
+      setStory(data);
+      setError(null);
+    } catch (err) {
+      setError('Masal yüklenirken bir hata oluştu');
+      console.error('Error loading story:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleFavorite = async () => {
+    if (!story) return;
+
     if (isFavorite(storyId)) {
       await removeFavorite(storyId);
     } else {
       await addFavorite({
-        id: storyDetails.id,
-        title: storyDetails.title,
-        preview: storyDetails.preview
+        id: story._id,
+        title: story.title,
+        preview: story.preview
       });
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
+  if (error || !story) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>{error || 'Masal bulunamadı'}</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -48,7 +69,7 @@ Ve böylece masal başlamış...`,
         <Card.Content>
           <View style={styles.header}>
             <Title style={[styles.title, { color: theme.colors.primary }]}>
-              {storyDetails.title}
+              {story.title}
             </Title>
             <IconButton
               icon={isFavorite(storyId) ? "heart" : "heart-outline"}
@@ -59,12 +80,12 @@ Ve böylece masal başlamış...`,
           </View>
           
           <View style={styles.metaInfo}>
-            <Text style={styles.author}>{storyDetails.author}</Text>
-            <Text style={styles.readingTime}>{storyDetails.readingTime}</Text>
+            <Text style={styles.author}>{story.author}</Text>
+            <Text style={styles.readingTime}>{story.readingTime}</Text>
           </View>
 
           <Paragraph style={styles.content}>
-            {storyDetails.content}
+            {story.content}
           </Paragraph>
         </Card.Content>
       </Card>
@@ -75,6 +96,12 @@ Ve böylece masal başlamış...`,
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
   },
   storyCard: {
@@ -106,6 +133,10 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
   },
 });
 

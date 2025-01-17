@@ -30,7 +30,7 @@ export default function App() {
             <Stack.Screen
               name="MainTabs"
               component={MainTabs}
-              options={{ headerShown: true }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="StoryDetails"
