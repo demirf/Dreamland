@@ -4,7 +4,9 @@ import Story from '../models/Story';
 // Tüm masalları getir
 export const getAllStories = async (req: Request, res: Response) => {
   try {
-    const stories = await Story.find().select('title preview author readingTime');
+    const stories = await Story.find()
+      .select('title preview readingTime category')
+      .populate('category', 'name icon');
     res.json(stories);
   } catch (error) {
     res.status(500).json({ message: 'Masallar getirilirken bir hata oluştu' });
@@ -14,7 +16,8 @@ export const getAllStories = async (req: Request, res: Response) => {
 // Tek bir masalı getir
 export const getStoryById = async (req: Request, res: Response) => {
   try {
-    const story = await Story.findById(req.params.id);
+    const story = await Story.findById(req.params.id)
+      .populate('category', 'name icon');
     if (!story) {
       return res.status(404).json({ message: 'Masal bulunamadı' });
     }

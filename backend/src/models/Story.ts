@@ -3,7 +3,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IStory extends Document {
   title: string;
   content: string;
-  author: string;
   readingTime: string;
   preview: string;
   category: mongoose.Types.ObjectId;
@@ -20,11 +19,6 @@ const StorySchema = new Schema({
   content: {
     type: String,
     required: true
-  },
-  author: {
-    type: String,
-    required: true,
-    trim: true
   },
   readingTime: {
     type: String,

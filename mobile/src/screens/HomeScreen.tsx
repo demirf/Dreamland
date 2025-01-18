@@ -4,6 +4,7 @@ import { Text, Card, Title, Paragraph, useTheme } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { storyService, Story } from '../services/api';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -63,7 +64,15 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
               <Title>{story.title}</Title>
               <Paragraph>{story.preview}</Paragraph>
               <View style={styles.metaInfo}>
-                <Text style={styles.author}>{story.author}</Text>
+                <View style={styles.categoryInfo}>
+                  <Icon 
+                    name={story.category.icon} 
+                    size={16} 
+                    color={theme.colors.primary}
+                    style={styles.categoryIcon}
+                  />
+                  <Text style={styles.categoryName}>{story.category.name}</Text>
+                </View>
                 <Text style={styles.readingTime}>{story.readingTime}</Text>
               </View>
             </Card.Content>
@@ -102,13 +111,24 @@ const styles = StyleSheet.create({
   metaInfo: {
     flexDirection: 'row',
     marginTop: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoryInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryIcon: {
+    marginRight: 4,
+  },
+  categoryName: {
+    fontSize: 12,
     opacity: 0.7,
   },
-  author: {
-    marginRight: 16,
-  },
   readingTime: {
+    fontSize: 12,
     fontStyle: 'italic',
+    opacity: 0.7,
   },
   errorText: {
     color: 'red',

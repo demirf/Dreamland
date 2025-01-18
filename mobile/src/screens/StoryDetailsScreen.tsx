@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
-import { Text, Card, Title, Paragraph, IconButton, useTheme } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { useFavorites } from '../context/FavoritesContext';
 import { storyService, Story } from '../services/api';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StoryDetails'>;
 
 const StoryDetailsScreen: React.FC<Props> = ({ route }) => {
-  const { storyId } = route.params;
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
-  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
   useEffect(() => {
     loadStory();
-  }, [storyId]);
+  }, []);
 
   const loadStory = async () => {
     try {
-      const data = await storyService.getStoryById(storyId);
+      const data = await storyService.getStoryById(route.params.storyId);
       setStory(data);
       setError(null);
     } catch (err) {
@@ -30,20 +28,6 @@ const StoryDetailsScreen: React.FC<Props> = ({ route }) => {
       console.error('Error loading story:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const toggleFavorite = async () => {
-    if (!story) return;
-
-    if (isFavorite(storyId)) {
-      await removeFavorite(storyId);
-    } else {
-      await addFavorite({
-        id: story._id,
-        title: story.title,
-        preview: story.preview
-      });
     }
   };
 
@@ -65,30 +49,24 @@ const StoryDetailsScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Card style={styles.storyCard}>
-        <Card.Content>
-          <View style={styles.header}>
-            <Title style={[styles.title, { color: theme.colors.primary }]}>
-              {story.title}
-            </Title>
-            <IconButton
-              icon={isFavorite(storyId) ? "heart" : "heart-outline"}
-              size={24}
-              onPress={toggleFavorite}
-              iconColor={theme.colors.primary}
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: theme.colors.primary }]}>
+          {story.title}
+        </Text>
+        <View style={styles.metaInfo}>
+          <View style={styles.categoryInfo}>
+            <Icon 
+              name={story.category.icon} 
+              size={20} 
+              color={theme.colors.primary}
+              style={styles.categoryIcon}
             />
+            <Text style={styles.categoryName}>{story.category.name}</Text>
           </View>
-          
-          <View style={styles.metaInfo}>
-            <Text style={styles.author}>{story.author}</Text>
-            <Text style={styles.readingTime}>{story.readingTime}</Text>
-          </View>
-
-          <Paragraph style={styles.content}>
-            {story.content}
-          </Paragraph>
-        </Card.Content>
-      </Card>
+          <Text style={styles.readingTime}>{story.readingTime}</Text>
+        </View>
+      </View>
+      <Text style={styles.content}>{story.content}</Text>
     </ScrollView>
   );
 };
@@ -104,35 +82,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-  storyCard: {
-    margin: 16,
-    elevation: 4,
-    borderRadius: 12,
-  },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   title: {
     fontSize: 24,
-    flex: 1,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   metaInfo: {
     flexDirection: 'row',
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  author: {
-    marginRight: 16,
+  categoryInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryIcon: {
+    marginRight: 4,
+  },
+  categoryName: {
+    fontSize: 14,
     opacity: 0.7,
   },
   readingTime: {
+    fontSize: 14,
+    fontStyle: 'italic',
     opacity: 0.7,
   },
   content: {
     fontSize: 16,
     lineHeight: 24,
+    padding: 16,
+    textAlign: 'justify'
   },
   errorText: {
     color: 'red',

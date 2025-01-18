@@ -9,29 +9,28 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 type Props = NativeStackScreenProps<RootStackParamList, 'CategoryDetails'>;
 
 const CategoryDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { categoryId } = route.params;
-  const [category, setCategory] = useState<Category | null>(null);
   const [stories, setStories] = useState<Story[]>([]);
+  const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
 
   useEffect(() => {
     loadCategoryAndStories();
-  }, [categoryId]);
+  }, []);
 
   const loadCategoryAndStories = async () => {
     try {
       const [categoryData, storiesData] = await Promise.all([
-        categoryService.getCategoryById(categoryId),
-        categoryService.getStoriesByCategory(categoryId)
+        categoryService.getCategoryById(route.params.categoryId),
+        categoryService.getStoriesByCategory(route.params.categoryId)
       ]);
       setCategory(categoryData);
       setStories(storiesData);
       setError(null);
     } catch (err) {
-      setError('Kategori bilgileri yüklenirken bir hata oluştu');
-      console.error('Error loading category details:', err);
+      setError('Veriler yüklenirken bir hata oluştu');
+      console.error('Error loading category and stories:', err);
     } finally {
       setLoading(false);
     }
@@ -56,38 +55,45 @@ const CategoryDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Icon 
-          name={category.icon} 
-          size={48} 
-          color={theme.colors.primary}
-          style={styles.icon}
-        />
-        <Title style={styles.title}>{category.name}</Title>
+        <View style={styles.categoryInfo}>
+          <Icon 
+            name={category.icon} 
+            size={32} 
+            color={theme.colors.primary}
+            style={styles.categoryIcon}
+          />
+          <Text style={[styles.categoryName, { color: theme.colors.primary }]}>
+            {category.name}
+          </Text>
+        </View>
         <Text style={styles.description}>{category.description}</Text>
       </View>
 
       <View style={styles.storiesContainer}>
-        <Title style={styles.sectionTitle}>Masallar</Title>
-        {stories.length === 0 ? (
-          <Text style={styles.emptyText}>Bu kategoride henüz masal bulunmuyor</Text>
-        ) : (
-          stories.map((story) => (
-            <Card
-              key={story._id}
-              style={styles.storyCard}
-              onPress={() => navigation.navigate('StoryDetails', { storyId: story._id })}
-            >
-              <Card.Content>
-                <Title>{story.title}</Title>
-                <Paragraph>{story.preview}</Paragraph>
-                <View style={styles.metaInfo}>
-                  <Text style={styles.author}>{story.author}</Text>
-                  <Text style={styles.readingTime}>{story.readingTime}</Text>
+        {stories.map((story) => (
+          <Card
+            key={story._id}
+            style={styles.storyCard}
+            onPress={() => navigation.navigate('StoryDetails', { storyId: story._id })}
+          >
+            <Card.Content>
+              <Title>{story.title}</Title>
+              <Paragraph>{story.preview}</Paragraph>
+              <View style={styles.metaInfo}>
+                <View style={styles.categoryInfo}>
+                  <Icon 
+                    name={story.category.icon} 
+                    size={16} 
+                    color={theme.colors.primary}
+                    style={styles.storyIcon}
+                  />
+                  <Text style={styles.storyCategoryName}>{story.category.name}</Text>
                 </View>
-              </Card.Content>
-            </Card>
-          ))
-        )}
+                <Text style={styles.readingTime}>{story.readingTime}</Text>
+              </View>
+            </Card.Content>
+          </Card>
+        ))}
       </View>
     </ScrollView>
   );
@@ -105,30 +111,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    padding: 24,
-    alignItems: 'center',
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  icon: {
-    marginBottom: 16,
+  categoryInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  title: {
+  categoryIcon: {
+    marginRight: 8,
+  },
+  categoryName: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    textAlign: 'center',
     opacity: 0.7,
   },
   storiesContainer: {
     padding: 16,
-  },
-  sectionTitle: {
-    marginBottom: 16,
   },
   storyCard: {
     marginBottom: 16,
@@ -138,18 +142,20 @@ const styles = StyleSheet.create({
   metaInfo: {
     flexDirection: 'row',
     marginTop: 8,
-    opacity: 0.7,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  author: {
-    marginRight: 16,
+  storyIcon: {
+    marginRight: 4,
+  },
+  storyCategoryName: {
+    fontSize: 12,
+    opacity: 0.7,
   },
   readingTime: {
+    fontSize: 12,
     fontStyle: 'italic',
-  },
-  emptyText: {
-    textAlign: 'center',
     opacity: 0.7,
-    marginTop: 16,
   },
   errorText: {
     color: 'red',

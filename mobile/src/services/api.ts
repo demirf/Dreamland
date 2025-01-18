@@ -8,12 +8,13 @@ export interface Story {
   _id: string;
   title: string;
   content: string;
-  author: string;
-  readingTime: string;
   preview: string;
-  category: string;
-  createdAt: string;
-  updatedAt: string;
+  readingTime: string;
+  category: {
+    _id: string;
+    name: string;
+    icon: string;
+  };
 }
 
 export interface Category {
