@@ -36,12 +36,18 @@ export default function App() {
             <Stack.Screen
               name="StoryDetails"
               component={StoryDetailsScreen}
-              options={{ title: 'Masal Detayı' }}
+              options={{ 
+                title: 'Masal Detayı',
+                headerBackTitle: 'Masallar'
+              }}
             />
             <Stack.Screen
               name="CategoryDetails"
               component={CategoryDetailsScreen}
-              options={{ title: 'Kategori Detayı' }}
+              options={{ 
+                title: 'Kategori Detayı',
+                headerBackTitle: 'Kategoriler'
+              }}
             />
           </Stack.Navigator>
         </NavigationContainer>
